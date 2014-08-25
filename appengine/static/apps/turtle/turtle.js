@@ -288,12 +288,14 @@ Turtle.animate = function() {
     return;
   }
   var command = tuple.shift();
-  BlocklyApps.highlight(tuple.pop());
+  // if(highlightBlocks){ //Added by Zuhair
+	// BlocklyApps.highlight(tuple.pop());
+	// }
   Turtle.step(command, tuple);
   Turtle.display();
 
   // Scale the speed non-linearly, to give better precision at the fast end.
-  var stepSpeed = 1000 * Math.pow(1 - Turtle.speedSlider.getValue(), 2);
+  var stepSpeed = 100* Math.pow(1 - Turtle.speedSlider.getValue(), 2);
   Turtle.pid = window.setTimeout(Turtle.animate, stepSpeed);
 };
 
@@ -359,6 +361,18 @@ Turtle.step = function(command, values) {
     case 'ST':  // Show Turtle
       Turtle.visible = true;
       break;
+	  // Added by Zuhair
+	case 'DL': // Draw Loop
+		if (Turtle.penDownValue) {
+        Turtle.ctxScratch.beginPath();
+		var radius = values[0];
+		var cenx = Turtle.x +radius * Math.cos(2 * Math.PI * Turtle.heading / 360);
+		var ceny = Turtle.y - radius * Math.sin(2 * Math.PI * Turtle.heading / 360);
+        Turtle.ctxScratch.arc(cenx, ceny,Math.abs(radius),0,2*Math.PI);
+        Turtle.ctxScratch.stroke();
+      }
+      break;
+	  
   }
 };
 
@@ -423,4 +437,14 @@ Turtle.drawPrint = function(text, id) {
 
 Turtle.drawFont = function(font, size, style, id) {
   BlocklyApps.log.push(['DF', font, size, style, id]);
+};
+
+// Added by Zuhair
+
+Turtle.drawCircleRight = function(radius, id) {
+  BlocklyApps.log.push(['DL', radius, id]);
+};
+
+Turtle.drawCircleLeft = function(radius, id) {
+  BlocklyApps.log.push(['DL', -radius, id]);
 };

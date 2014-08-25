@@ -217,3 +217,26 @@ Blockly.JavaScript['draw_font'] = function(block) {
       block.getFieldValue('FONTSTYLE') + '\', \'block_id_' +
       block.id + '\');\n';
 };
+
+//added by Zuhair
+Blockly.Blocks['draw_circle'] = {
+// Block for drawing a circle, clockwise or counter clockwise
+  init: function() {
+    this.setHelpUrl('');
+    this.setColour(160);
+    this.appendValueInput("VALUE")
+        .setCheck("Number")
+        .appendField("circle")
+        .appendField(new Blockly.FieldDropdown([["left", "drawCircleLeft"], ["right", "drawCircleRight"]]), "DIR")
+        .appendField("with radius");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setTooltip('draws a circle, clockwise or counter clockwise');
+  }
+};
+
+Blockly.JavaScript['draw_circle'] = function(block) {
+  var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC);
+  return 'Turtle.' + block.getFieldValue('DIR') +
+      '(' + value + ', \'block_id_' + block.id + '\');\n';;
+};
