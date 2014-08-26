@@ -371,6 +371,30 @@ Turtle.step = function(command, values) {
         Turtle.ctxScratch.arc(cenx, ceny,Math.abs(radius),0,2*Math.PI);
         Turtle.ctxScratch.stroke();
       }
+	  break;
+	 case 'AL': // Draw arc left
+	    var radius = values[0];
+		var angle = values[1];
+		if (Turtle.penDownValue) {
+        Turtle.ctxScratch.beginPath();
+		var cenx = Turtle.x - radius * Math.cos(2 * Math.PI * Turtle.heading / 360);
+		var ceny = Turtle.y + radius * Math.sin(2 * Math.PI * Turtle.heading / 360);
+		var start_angle;
+		var end_angle;
+		if (radius>=0){
+			start_angle = 2 * Math.PI * ((Turtle.heading-angle)%360) / 360;
+			end_angle = 2 * Math.PI * (Turtle.heading)/ 360;
+		}
+		else{
+			start_angle = 2 * Math.PI * ((Turtle.heading+180)%360) / 360;
+			end_angle = 2 * Math.PI * (Turtle.heading-angle+180)/ 360;
+		}
+        Turtle.ctxScratch.arc(cenx, ceny,Math.abs(radius),start_angle,end_angle);
+        Turtle.ctxScratch.stroke();
+      }
+	   Turtle.heading -=angle;
+	  Turtle.x = cenx + radius * Math.cos(2 * Math.PI * Turtle.heading / 360);
+	  Turtle.y = ceny + radius * Math.sin(2 * Math.PI * Turtle.heading / 360);
       break;
 	  
   }
@@ -448,3 +472,11 @@ Turtle.drawCircleRight = function(radius, id) {
 Turtle.drawCircleLeft = function(radius, id) {
   BlocklyApps.log.push(['DL', -radius, id]);
 };
+
+Turtle.arcLeft = function(radius, angle, id) {
+  BlocklyApps.log.push(['AL', radius, angle,id]);
+}
+
+Turtle.arcRight = function(radius, angle, id) {
+  BlocklyApps.log.push(['AL', -radius, -angle,id]);
+}

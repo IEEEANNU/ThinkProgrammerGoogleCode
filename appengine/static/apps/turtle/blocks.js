@@ -238,7 +238,7 @@ Blockly.Blocks['draw_circle'] = {
 Blockly.JavaScript['draw_circle'] = function(block) {
   var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC);
   return 'Turtle.' + block.getFieldValue('DIR') +
-      '(' + value + ', \'block_id_' + block.id + '\');\n';;
+      '(' + value + ', \'block_id_' + block.id + '\');\n';
 };
 
 Blockly.Blocks['comment'] = {
@@ -253,6 +253,30 @@ Blockly.Blocks['comment'] = {
 
 Blockly.JavaScript['comment'] = function(block) {
   var text_comment_text = block.getFieldValue('COMMENT_TEXT');
-  var code = '//'+text_comment_text;
+  var code = '/*'+text_comment_text+'*/';
   return code;
+};
+
+Blockly.Blocks['move_arc'] = {
+  init: function() {
+    this.setColour(160);
+    this.appendValueInput("VALUE")
+        .setCheck("Number")
+        .appendField("move")
+        .appendField(new Blockly.FieldDropdown([["left", "arcLeft"], ["right", "arcRight"]]), "DIR")
+        .appendField("with an arc of radius");
+    this.appendDummyInput()
+        .appendField("and angle of")
+        .appendField(new Blockly.FieldAngle("90"), "ANGLE");
+    this.setPreviousStatement(true);
+    this.setNextStatement(true);
+    this.setTooltip('');
+  }
+};
+
+Blockly.JavaScript['move_arc'] = function(block) {
+  var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC);
+  var angle = block.getFieldValue('ANGLE');
+  return 'Turtle.' + block.getFieldValue('DIR') +
+      '(' + value + ', '+angle+', \'block_id_' + block.id + '\');\n';;
 };
