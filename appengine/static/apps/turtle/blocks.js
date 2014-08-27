@@ -276,7 +276,7 @@ Blockly.Blocks['move_arc'] = {
 
 Blockly.JavaScript['move_arc'] = function(block) {
   var value = Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_ATOMIC);
-  var angle = block.getFieldValue('ANGLE');
+  var angle =  Blockly.JavaScript.valueToCode(block, 'ANGLE', Blockly.JavaScript.ORDER_ATOMIC);
   return 'Turtle.' + block.getFieldValue('DIR') +
       '(' + value + ', '+angle+', \'block_id_' + block.id + '\');\n';;
 };
