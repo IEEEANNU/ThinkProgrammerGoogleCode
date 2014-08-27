@@ -265,9 +265,9 @@ Blockly.Blocks['move_arc'] = {
         .appendField("move")
         .appendField(new Blockly.FieldDropdown([["left", "arcLeft"], ["right", "arcRight"]]), "DIR")
         .appendField("with an arc of radius");
-    this.appendDummyInput()
+    this.appendValueInput("ANGLE")
+        .setCheck("Number")
         .appendField("and angle of")
-        .appendField(new Blockly.FieldAngle("90"), "ANGLE");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setTooltip('');
