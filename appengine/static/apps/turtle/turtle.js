@@ -289,9 +289,9 @@ Turtle.animate = function() {
     return;
   }
   var command = tuple.shift();
-  // if(highlightBlocks){ //Added by Zuhair
-	// BlocklyApps.highlight(tuple.pop());
-	// }
+   if(document.getElementById('highlight_blocks').checked){ //Added by Zuhair
+	 BlocklyApps.highlight(tuple.pop());
+	 }
   Turtle.step(command, tuple);
   Turtle.display();
 
