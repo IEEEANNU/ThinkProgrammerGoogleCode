@@ -75,7 +75,9 @@
         </h1>
       </td>
       <td class="farSide">
-        <select id="languageMenu"></select>
+        <button id="submitButton" class="primary" title="Submit the question to the Autograder">
+          Submit
+        </button>
       </td>
     </tr>
   </table>
@@ -141,6 +143,7 @@
     <button class="notext" id="captureButton" title="{msg meaning="Turtle.captureTooltip" desc="tooltip - Pressing this button causes the drawing created by the user's program to be saved as an image on the user's computer.  The button icon looks like a camera."}Save the drawing.{/msg}">
       <img src='../../media/1x1.gif' class="img icon21">
     </button>
+    <input id="highlight_blocks" type="checkbox" >Highlight Blocks<br>
     <a id="downloadImageLink" download="{msg meaning="Turtle.imgFilename" desc="filename - The name of the image file containing the user's drawing.  It must end with '.png'."}drawing.png{/msg}"></a>
   </div>
 
