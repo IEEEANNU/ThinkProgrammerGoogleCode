@@ -4,7 +4,8 @@
 			"toolbox_type":null, 
 			"max_blocks":null, 
 			"question_image":null, 
-			"question_text":null
+			"question_text":null,
+			"loaded_blocks":null
 		}
 	},
 	
@@ -13,7 +14,8 @@
 			"toolbox_type":"basic", 
 			"max_blocks":5, 
 			"question_image":"example.png", 
-			"question_text":"This is an example"
+			"question_text":"This is an example",
+			"loaded_blocks": "<xml><block type=\"draw_move\" x=\"70\" y=\"70\"><value name=\"VALUE\"><block type=\"math_number\"><field name=\"NUM\">100</field></block></value></block></xml>"
 		}
 	}
 		

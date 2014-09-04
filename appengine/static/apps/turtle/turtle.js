@@ -59,6 +59,7 @@ var request = new XMLHttpRequest();
    Turtle.MAX_BLOCKS = levelquestion.max_blocks?levelquestion.max_blocks:Infinity;
    Turtle.QUESTION_IMAGE = levelquestion.question_image;
    Turtle.QUESTION_TEXT = levelquestion.question_text;
+   Turtle.LOADED_BLOCKS = levelquestion.loaded_blocks;
 
 /**
  * PID of animation task currently executing.
@@ -127,16 +128,7 @@ Turtle.init = function() {
   var sliderSvg = document.getElementById('slider');
   Turtle.speedSlider = new Slider(10, 35, 130, sliderSvg);
 
-  var defaultXml =
-      '<xml>' +
-      '  <block type="draw_move" x="70" y="70">' +
-      '    <value name="VALUE">' +
-      '      <block type="math_number">' +
-      '        <field name="NUM">100</field>' +
-      '      </block>' +
-      '    </value>' +
-      '  </block>' +
-      '</xml>';
+  var defaultXml = Turtle.LOADED_BLOCKS ? Turtle.LOADED_BLOCKS : '<xml></xml>'; // edited by Zuhair
   BlocklyApps.loadBlocks(defaultXml);
 
   Turtle.ctxDisplay = document.getElementById('display').getContext('2d');
@@ -145,6 +137,21 @@ Turtle.init = function() {
 
   BlocklyApps.bindClick('runButton', Turtle.runButtonClick);
   BlocklyApps.bindClick('resetButton', Turtle.resetButtonClick);
+  
+  // Added by Zuhair
+  if (Turtle.LEVEL != "default") {
+    BlocklyApps.bindClick('showQuestionButton', Turtle.showQuestionClick);
+	// Show question on startup
+    var content = document.getElementById('dialogQuestion');
+    var style = {
+      width: '30%',
+      left: '35%',
+      top: '12em'
+    };
+    BlocklyApps.showDialog(content, null, false, true, style,
+        BlocklyApps.stopDialogKeyDown);
+    BlocklyApps.startDialogKeyDown();
+  }
 
   // Lazy-load the syntax-highlighting.
   window.setTimeout(BlocklyApps.importPrettify, 1);
@@ -229,6 +236,23 @@ Turtle.display = function() {
     Turtle.ctxDisplay.fill();
   }
 };
+
+/**
+* Show question, Added by Zuhair
+*/
+
+Turtle.showQuestionClick = function(e) {
+	var origin = e.target;
+  var content = document.getElementById('dialogQuestion');
+  var style = {
+    width: '40%',
+    left: '30%',
+    top: '5em'
+  };
+  BlocklyApps.showDialog(content, origin, true, true, style,
+      BlocklyApps.stopDialogKeyDown);
+  BlocklyApps.startDialogKeyDown();
+}
 
 /**
  * Click the run button.  Start the program.
