@@ -79,10 +79,10 @@
 		 <button id="showQuestionButton" class="primary" title="Shows the current question">
 		 Show question
 		 </button>
-		{/if}
 	     <button id="submitButton" class="primary" title="Submit the question to the Autograder">
           Submit
         </button>
+		{/if}
         <select id="languageMenu" style="visibility: hidden"></select>
       </td>
     </tr>
@@ -167,9 +167,17 @@
   {if $ij.level != 'default'}
     <div id="dialogQuestion" class="dialogHiddenContent">
     <table><tr>
-		<td><img src = "{$ij.image}"></img></td>
+		<td><img id="question_image"></img></td>
 		<td>&nbsp;</td>		
-		<td>{$ij.qText}</td>
+		<td><div id="question_text"></div></td>
+	</tr></table>
+    {call apps.ok /}
+  </div>
+   <div id="dialogSubmit" class="dialogHiddenContent">
+    <table><tr>
+		<td><img id="diff_image"></img></td>
+		<td>&nbsp;</td>		
+		<td><div id = "submit_response"></div></td>
 	</tr></table>
     {call apps.ok /}
   </div>

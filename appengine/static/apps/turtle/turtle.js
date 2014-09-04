@@ -27,7 +27,8 @@
  * Create a namespace for the application.
  */
 var Turtle = {};
-
+Turtle.LEVEL = BlocklyApps.getStringParamFromUrl("level", "default");
+Turtle.QUESTION = BlocklyApps.getStringParamFromUrl("question", "default");
 // Supported languages.
 BlocklyApps.LANGUAGES =
 		['en']; // edited by Zuhair, We don't want any languages for now
@@ -36,30 +37,54 @@ BlocklyApps.LANGUAGES =
      'sco', 'sv', 'tr', 'uk', 'vi', 'zh-hans', 'zh-hant'];*/
 BlocklyApps.LANG = BlocklyApps.getLang();
 
-document.write('<script type="text/javascript" src="generated/' +
-               BlocklyApps.LANG + '.js"></script>\n');
-
-Turtle.HEIGHT = 400;
-Turtle.WIDTH = 400;
-
 /**
 * Get the level and the question from the URL, added by Zuhair
 */
-Turtle.LEVEL = BlocklyApps.getStringParamFromUrl("level", "default");
-Turtle.QUESTION = BlocklyApps.getStringParamFromUrl("question", "default");
+
+var testing = BlocklyApps.getStringParamFromUrl("test", "false");
 
 /**
 * Get the selected level from a json file, added by Zuhair
 */
+
+if (testing == "false"){
 var request = new XMLHttpRequest();
    request.open("GET", "questions.json", false);
    request.send(null);
-	var levelquestion = JSON.parse(request.responseText)[Turtle.LEVEL][Turtle.QUESTION];
+	var levelquestion = JSON.parse(requuest.responseText)[Turtle.LEVEL][Turtle.QUESTION];
+}
+else{
+var levelquestion = {
+			"toolbox_type":null, 
+			"max_blocks":null, 
+			"question_image":"example.png", 
+			"question_text":"hello",
+			"loaded_blocks":null
+	};
+	}
    Turtle.TOOLBOX_TYPE = levelquestion.toolbox_type?levelquestion.toolbox_type:"full";
    Turtle.MAX_BLOCKS = levelquestion.max_blocks?levelquestion.max_blocks:Infinity;
    Turtle.QUESTION_IMAGE = levelquestion.question_image;
    Turtle.QUESTION_TEXT = levelquestion.question_text;
    Turtle.LOADED_BLOCKS = levelquestion.loaded_blocks;
+
+document.write('<script type="text/javascript" src="generated/' +
+               BlocklyApps.LANG + '.js"></script>\n');
+
+// moved here from index.html, to solve the problem of not injecting the variables into the soy, Added by Zuhair
+document.write(  '<script type="text/javascript">'
+    +'document.write(turtlepage.start({}, null,'
+        +'{lang: BlocklyApps.LANG,'
+		 +'maxBlocks:Turtle.MAX_BLOCKS,'
+		 +'toolboxType:Turtle.TOOLBOX_TYPE,'
+		 +'level: Turtle.LEVEL,'
+		 +'question: Turtle.QUESTION,'
+         +'langSrc: BlocklyApps.languagePack()}));'
+  +'</script>');
+			   
+Turtle.HEIGHT = 400;
+Turtle.WIDTH = 400;
+
 
 /**
  * PID of animation task currently executing.
@@ -140,6 +165,9 @@ Turtle.init = function() {
   
   // Added by Zuhair
   if (Turtle.LEVEL != "default") {
+  document.getElementById("question_image").src = Turtle.QUESTION_IMAGE;
+  document.getElementById("question_text").innerHTML = Turtle.QUESTION_TEXT;
+	BlocklyApps.bindClick('submitButton', Turtle.submitClick);
     BlocklyApps.bindClick('showQuestionButton', Turtle.showQuestionClick);
 	// Show question on startup
     var content = document.getElementById('dialogQuestion');
@@ -244,6 +272,28 @@ Turtle.display = function() {
 Turtle.showQuestionClick = function(e) {
 	var origin = e.target;
   var content = document.getElementById('dialogQuestion');
+  var style = {
+    width: '40%',
+    left: '30%',
+    top: '5em'
+  };
+  BlocklyApps.showDialog(content, origin, true, true, style,
+      BlocklyApps.stopDialogKeyDown);
+  BlocklyApps.startDialogKeyDown();
+}
+
+/**
+* Submit click, Added by Zuhair
+*/
+
+Turtle.submitClick = function(e) {
+// TODO
+	var diffImage = document.getElementById('diff_image');
+	diffImage.src = ""; // TODO
+	var submitResponse = document.getElementById('submit_response');
+	submitResponse.innerHTML = ""; // TODO
+	var origin = e.target;
+  var content = document.getElementById('dialogSubmit');
   var style = {
     width: '40%',
     left: '30%',
@@ -524,3 +574,4 @@ Turtle.arcLeft = function(radius, angle, id) {
 Turtle.arcRight = function(radius, angle, id) {
   BlocklyApps.log.push(['AL', radius, angle,id]);
 }
+
