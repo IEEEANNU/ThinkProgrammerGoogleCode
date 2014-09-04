@@ -43,6 +43,24 @@ Turtle.HEIGHT = 400;
 Turtle.WIDTH = 400;
 
 /**
+* Get the level and the question from the URL, added by Zuhair
+*/
+Turtle.LEVEL = BlocklyApps.getStringParamFromUrl("level", "default");
+Turtle.QUESTION = BlocklyApps.getStringParamFromUrl("question", "default");
+
+/**
+* Get the selected level from a json file, added by Zuhair
+*/
+var request = new XMLHttpRequest();
+   request.open("GET", "questions.json", false);
+   request.send(null);
+	var levelquestion = JSON.parse(request.responseText)[Turtle.LEVEL][Turtle.QUESTION];
+   Turtle.TOOLBOX_TYPE = levelquestion.toolbox_type?levelquestion.toolbox_type:"full";
+   Turtle.MAX_BLOCKS = levelquestion.max_blocks?levelquestion.max_blocks:Infinity;
+   Turtle.QUESTION_IMAGE = levelquestion.question_image;
+   Turtle.QUESTION_TEXT = levelquestion.question_text;
+
+/**
  * PID of animation task currently executing.
  */
 Turtle.pid = 0;
@@ -77,6 +95,7 @@ Turtle.init = function() {
   var toolbox = document.getElementById('toolbox');
   Blockly.inject(document.getElementById('blockly'),
       {path: '../../',
+	  maxBlocks: Turtle.MAX_BLOCKS,
        rtl: rtl,
        toolbox: toolbox,
        trashcan: true});

@@ -1,0 +1,20 @@
+{
+	"default":{
+		"default":{
+			"toolbox_type":null, 
+			"max_blocks":null, 
+			"question_image":null, 
+			"question_text":null
+		}
+	},
+	
+	"exname":{
+		"exquestion":{
+			"toolbox_type":"basic", 
+			"max_blocks":5, 
+			"question_image":"example.png", 
+			"question_text":"This is an example"
+		}
+	}
+		
+}
