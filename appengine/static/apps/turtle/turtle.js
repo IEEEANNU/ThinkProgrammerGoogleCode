@@ -85,6 +85,11 @@ Turtle.pid = 0;
 Turtle.visible = true;
 
 /**
+* Is the code executed? , Added by Zuhair
+*/
+Turtle.executed = false;
+
+/**
  * Initialize Blockly and the turtle.  Called on page load.
  */
 Turtle.init = function() {
@@ -153,16 +158,16 @@ Turtle.init = function() {
   
   // Added by Zuhair
   if (Turtle.LEVEL != "default") {
-  document.getElementById("question_image").src = Turtle.QUESTION_IMAGE;
-  document.getElementById("question_text").innerHTML = Turtle.QUESTION_TEXT;
+  document.getElementById("question_image").src = Turtle.QUESTION_IMAGE? "questions/"+Turtle.QUESTION_IMAGE:"error.png";
+  document.getElementById("question_text").innerHTML = Turtle.QUESTION_TEXT?Turtle.QUESTION_TEXT:"No such question";
 	BlocklyApps.bindClick('submitButton', Turtle.submitClick);
     BlocklyApps.bindClick('showQuestionButton', Turtle.showQuestionClick);
 	// Show question on startup
     var content = document.getElementById('dialogQuestion');
     var style = {
-      width: '30%',
-      left: '35%',
-      top: '12em'
+      width: '50%',
+      left: '30%',
+      top: '5em'
     };
     BlocklyApps.showDialog(content, null, false, true, style,
         BlocklyApps.stopDialogKeyDown);
@@ -261,7 +266,7 @@ Turtle.showQuestionClick = function(e) {
 	var origin = e.target;
   var content = document.getElementById('dialogQuestion');
   var style = {
-    width: '40%',
+    width: '50%',
     left: '30%',
     top: '5em'
   };
@@ -275,20 +280,29 @@ Turtle.showQuestionClick = function(e) {
 */
 
 Turtle.submitClick = function(e) {
+var origImageSrc = document.getElementById('display').toDataURL('image/png');
+var diffImage = document.getElementById('diff_image');
+var submitResponse = document.getElementById('submit_response');
+if(Turtle.executed == true){ // submit only when the code is executed
+	
 // TODO
-	var diffImage = document.getElementById('diff_image');
-	diffImage.src = ""; // TODO
-	var submitResponse = document.getElementById('submit_response');
-	submitResponse.innerHTML = ""; // TODO
+	
+	diffImage.src = origImageSrc; // TODO put the difference image here
+	submitResponse.innerHTML = ""; // TODO show the response here (accepts html put in a string)
+  }
+  else{
+    diffImage.src = "error.png";
+	submitResponse.innerHTML = "Please run your program first.";
+  }
 	var origin = e.target;
   var content = document.getElementById('dialogSubmit');
   var style = {
-    width: '40%',
+    width: '50%',
     left: '30%',
     top: '5em'
   };
   BlocklyApps.showDialog(content, origin, true, true, style,
-      BlocklyApps.stopDialogKeyDown);
+  BlocklyApps.stopDialogKeyDown);
   BlocklyApps.startDialogKeyDown();
 }
 
@@ -296,6 +310,7 @@ Turtle.submitClick = function(e) {
  * Click the run button.  Start the program.
  */
 Turtle.runButtonClick = function() {
+	Turtle.executed = true;
   var runButton = document.getElementById('runButton');
   var resetButton = document.getElementById('resetButton');
   // Ensure that Reset button is at least as wide as Run button.
@@ -318,6 +333,7 @@ Turtle.runButtonClick = function() {
  * Click the reset button.  Reset the Turtle.
  */
 Turtle.resetButtonClick = function() {
+	Turtle.executed = false;
   var runButton = document.getElementById('runButton');
   runButton.style.display = 'inline';
   document.getElementById('resetButton').style.display = 'none';
