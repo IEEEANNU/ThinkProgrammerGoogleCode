@@ -27,6 +27,11 @@
  * Create a namespace for the application.
  */
 var Turtle = {};
+<<<<<<< HEAD
+=======
+Turtle.LEVEL = BlocklyApps.getStringParamFromUrl("level", "default");
+Turtle.QUESTION = BlocklyApps.getStringParamFromUrl("question", "default");
+>>>>>>> origin/master
 // Supported languages.
 BlocklyApps.LANGUAGES =
 		['en']; // edited by Zuhair, We don't want any languages for now
@@ -38,8 +43,12 @@ BlocklyApps.LANG = BlocklyApps.getLang();
 /**
 * Get the level and the question from the URL, added by Zuhair
 */
+<<<<<<< HEAD
 Turtle.LEVEL = BlocklyApps.getStringParamFromUrl("level", "default");
 Turtle.QUESTION = BlocklyApps.getStringParamFromUrl("question", "default");
+=======
+
+>>>>>>> origin/master
 var testing = BlocklyApps.getStringParamFromUrl("test", "false");
 
 /**
@@ -50,7 +59,11 @@ if (testing == "false"){
 var request = new XMLHttpRequest();
    request.open("GET", "questions.json", false);
    request.send(null);
+<<<<<<< HEAD
 	var levelquestion = JSON.parse(request.responseText)[Turtle.LEVEL][Turtle.QUESTION];
+=======
+	var levelquestion = JSON.parse(requuest.responseText)[Turtle.LEVEL][Turtle.QUESTION];
+>>>>>>> origin/master
 }
 else{
 var levelquestion = {
@@ -70,8 +83,21 @@ var levelquestion = {
 document.write('<script type="text/javascript" src="generated/' +
                BlocklyApps.LANG + '.js"></script>\n');
 
+<<<<<<< HEAD
 
 
+=======
+// moved here from index.html, to solve the problem of not injecting the variables into the soy, Added by Zuhair
+document.write(  '<script type="text/javascript">'
+    +'document.write(turtlepage.start({}, null,'
+        +'{lang: BlocklyApps.LANG,'
+		 +'maxBlocks:Turtle.MAX_BLOCKS,'
+		 +'toolboxType:Turtle.TOOLBOX_TYPE,'
+		 +'level: Turtle.LEVEL,'
+		 +'question: Turtle.QUESTION,'
+         +'langSrc: BlocklyApps.languagePack()}));'
+  +'</script>');
+>>>>>>> origin/master
 			   
 Turtle.HEIGHT = 400;
 Turtle.WIDTH = 400;
