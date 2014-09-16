@@ -46,26 +46,26 @@ var testing = BlocklyApps.getStringParamFromUrl("test", "false");
 * Get the selected level from a json file, added by Zuhair
 */
 
-if (testing == "false"){
-var request = new XMLHttpRequest();
-   request.open("GET", "questions.json", false);
-   request.send(null);
-	var levelquestion = JSON.parse(request.responseText)[Turtle.LEVEL][Turtle.QUESTION];
+if (testing === "false") {
+    var request = new XMLHttpRequest();
+    request.open("GET", "questions.json", false);
+    request.send(null);
+    var levelquestion = JSON.parse(request.responseText)[Turtle.LEVEL][Turtle.QUESTION];
 }
-else{
-var levelquestion = {
-			"toolbox_type":null, 
-			"max_blocks":null, 
-			"question_image":"example.png", 
-			"question_text":"hello",
-			"loaded_blocks":null
-	};
-	}
-   Turtle.TOOLBOX_TYPE = levelquestion.toolbox_type?levelquestion.toolbox_type:"full";
-   Turtle.MAX_BLOCKS = levelquestion.max_blocks?levelquestion.max_blocks:Infinity;
-   Turtle.QUESTION_IMAGE = levelquestion.question_image;
-   Turtle.QUESTION_TEXT = levelquestion.question_text;
-   Turtle.LOADED_BLOCKS = levelquestion.loaded_blocks;
+else {
+    var levelquestion = {
+        "toolbox_type": null,
+        "max_blocks": null,
+        "question_image": null,
+        "question_text": null,
+        "loaded_blocks": null
+    };
+}
+Turtle.TOOLBOX_TYPE = levelquestion.toolbox_type ? levelquestion.toolbox_type : "full";
+Turtle.MAX_BLOCKS = levelquestion.max_blocks ? levelquestion.max_blocks : Infinity;
+Turtle.QUESTION_IMAGE_SRC = "questions/" + levelquestion.question_image;
+Turtle.QUESTION_TEXT = levelquestion.question_text;
+Turtle.LOADED_BLOCKS = levelquestion.loaded_blocks;
 
 document.write('<script type="text/javascript" src="generated/' +
                BlocklyApps.LANG + '.js"></script>\n');
@@ -156,29 +156,30 @@ Turtle.init = function() {
   BlocklyApps.bindClick('runButton', Turtle.runButtonClick);
   BlocklyApps.bindClick('resetButton', Turtle.resetButtonClick);
   
-  // Added by Zuhair
-  if (Turtle.LEVEL != "default") {
-  document.getElementById("question_image").src = Turtle.QUESTION_IMAGE? "questions/"+Turtle.QUESTION_IMAGE:"error.png";
-  document.getElementById("question_text").innerHTML = Turtle.QUESTION_TEXT?Turtle.QUESTION_TEXT:"No such question";
-	BlocklyApps.bindClick('submitButton', Turtle.submitClick);
-    BlocklyApps.bindClick('showQuestionButton', Turtle.showQuestionClick);
-	// Show question on startup
-    var content = document.getElementById('dialogQuestion');
-    var style = {
-      width: '50%',
-      left: '30%',
-      top: '5em'
-    };
-    BlocklyApps.showDialog(content, null, false, true, style,
-        BlocklyApps.stopDialogKeyDown);
-    BlocklyApps.startDialogKeyDown();
-  }
+    // Added by Zuhair
+    if (Turtle.LEVEL !== "default") {
+        document.getElementById("question_image").src = Turtle.QUESTION_IMAGE_SRC ? Turtle.QUESTION_IMAGE_SRC : "error.png";
+        document.getElementById("question_text").innerHTML = Turtle.QUESTION_TEXT ? Turtle.QUESTION_TEXT : "No such question";
+        BlocklyApps.bindClick('submitButton', Turtle.submitClick);
+        BlocklyApps.bindClick('showQuestionButton', Turtle.showQuestionClick);
+        // Show question on startup
+        var content = document.getElementById('dialogQuestion');
+        var style = {
+            width: '50%',
+            left: '30%',
+            top: '5em'
+        };
+        BlocklyApps.showDialog(content, null, false, true, style,
+                BlocklyApps.stopDialogKeyDown);
+        BlocklyApps.startDialogKeyDown();
+    }
 
   // Lazy-load the syntax-highlighting.
   window.setTimeout(BlocklyApps.importPrettify, 1);
 };
 
 window.addEventListener('load', Turtle.init);
+//BlocklyStorage.backupOnUnload;
 
 /**
  * Reset the turtle to the start position, clear the display, and kill any
@@ -259,52 +260,54 @@ Turtle.display = function() {
 };
 
 /**
-* Show question, Added by Zuhair
-*/
+ * Show question, Added by Zuhair
+ */
 
 Turtle.showQuestionClick = function(e) {
-	var origin = e.target;
-  var content = document.getElementById('dialogQuestion');
-  var style = {
-    width: '50%',
-    left: '30%',
-    top: '5em'
-  };
-  BlocklyApps.showDialog(content, origin, true, true, style,
-      BlocklyApps.stopDialogKeyDown);
-  BlocklyApps.startDialogKeyDown();
-}
+    var origin = e.target;
+    var content = document.getElementById('dialogQuestion');
+    var style = {
+        width: '50%',
+        left: '30%',
+        top: '5em'
+    };
+    BlocklyApps.showDialog(content, origin, true, true, style,
+            BlocklyApps.stopDialogKeyDown);
+    BlocklyApps.startDialogKeyDown();
+};
 
 /**
 * Submit click, Added by Zuhair
 */
 
 Turtle.submitClick = function(e) {
-var origImageSrc = document.getElementById('display').toDataURL('image/png');
-var diffImage = document.getElementById('diff_image');
-var submitResponse = document.getElementById('submit_response');
-if(Turtle.executed == true){ // submit only when the code is executed
-	
-// TODO
-	
-	diffImage.src = origImageSrc; // TODO put the difference image here
-	submitResponse.innerHTML = ""; // TODO show the response here (accepts html put in a string)
-  }
-  else{
-    diffImage.src = "error.png";
-	submitResponse.innerHTML = "Please run your program first.";
-  }
-	var origin = e.target;
-  var content = document.getElementById('dialogSubmit');
-  var style = {
-    width: '50%',
-    left: '30%',
-    top: '5em'
-  };
-  BlocklyApps.showDialog(content, origin, true, true, style,
-  BlocklyApps.stopDialogKeyDown);
-  BlocklyApps.startDialogKeyDown();
-}
+    var diffImage = document.getElementById('diff_image');
+    var submitResponse = document.getElementById('submit_response');
+    if (Turtle.executed === true) { // submit only when the code is executed
+        var attemptImageData = Turtle.ctxScratch.getImageData(0, 0, Turtle.WIDTH, Turtle.HEIGHT); // Image data for the user's attempt
+        var answerImageData = ImageProcess.getImageData(Turtle.QUESTION_IMAGE_SRC);
+        var response = ImageProcess.compareData(attemptImageData, answerImageData);
+        var movementResponse = ImageProcess.compareDataTrimmed(attemptImageData, answerImageData); // tests movement
+        
+        diffImage.src = response.diffImageSrc; 
+        
+        submitResponse.innerHTML = ""; // TODO show the response here (accepts html put in a string)
+    }
+    else {
+        diffImage.src = "error.png";
+        submitResponse.innerHTML = "Please run your program first.";
+    }
+    var origin = e.target;
+    var content = document.getElementById('dialogSubmit');
+    var style = {
+        width: '50%',
+        left: '30%',
+        top: '5em'
+    };
+    BlocklyApps.showDialog(content, origin, true, true, style,
+            BlocklyApps.stopDialogKeyDown);
+    BlocklyApps.startDialogKeyDown();
+};
 
 /**
  * Click the run button.  Start the program.
@@ -385,10 +388,10 @@ Turtle.animate = function() {
     BlocklyApps.highlight(null);
     return;
   }
-  var command = tuple.shift();
-   if(document.getElementById('highlight_blocks').checked){ //Added by Zuhair
-	 BlocklyApps.highlight(tuple.pop());
-	 }
+    var command = tuple.shift();
+    if (document.getElementById('highlight_blocks').checked) { //Added by Zuhair
+        BlocklyApps.highlight(tuple.pop());
+    }
   Turtle.step(command, tuple);
   Turtle.display();
 
@@ -403,99 +406,99 @@ Turtle.animate = function() {
  * @param {!Array} values List of arguments for the command.
  */
 Turtle.step = function(command, values) {
-  switch (command) {
-    case 'FD':  // Forward
-      if (Turtle.penDownValue) {
-        Turtle.ctxScratch.beginPath();
-        Turtle.ctxScratch.moveTo(Turtle.x, Turtle.y);
-      }
-      var distance = values[0];
-      if (distance) {
-        Turtle.x += distance * Math.sin(2 * Math.PI * Turtle.heading / 360);
-        Turtle.y -= distance * Math.cos(2 * Math.PI * Turtle.heading / 360);
-        var bump = 0;
-      } else {
-        // WebKit (unlike Gecko) draws nothing for a zero-length line.
-        var bump = 0.1;
-      }
-      if (Turtle.penDownValue) {
-        Turtle.ctxScratch.lineTo(Turtle.x, Turtle.y + bump);
-        Turtle.ctxScratch.stroke();
-      }
-      break;
-    case 'RT':  // Right Turn
-      Turtle.heading += values[0];
-      Turtle.heading %= 360;
-      if (Turtle.heading < 0) {
-        Turtle.heading += 360;
-      }
-      break;
-    case 'DP':  // Draw Print
-      Turtle.ctxScratch.save();
-      Turtle.ctxScratch.translate(Turtle.x, Turtle.y);
-      Turtle.ctxScratch.rotate(2 * Math.PI * (Turtle.heading - 90) / 360);
-      Turtle.ctxScratch.fillText(values[0], 0, 0);
-      Turtle.ctxScratch.restore();
-      break;
-    case 'DF':  // Draw Font
-      Turtle.ctxScratch.font = values[2] + ' ' + values[1] + 'pt ' + values[0];
-      break;
-    case 'PU':  // Pen Up
-      Turtle.penDownValue = false;
-      break;
-    case 'PD':  // Pen Down
-      Turtle.penDownValue = true;
-      break;
-    case 'PW':  // Pen Width
-      Turtle.ctxScratch.lineWidth = values[0];
-      break;
-    case 'PC':  // Pen Colour
-      Turtle.ctxScratch.strokeStyle = values[0];
-      Turtle.ctxScratch.fillStyle = values[0];
-      break;
-    case 'HT':  // Hide Turtle
-      Turtle.visible = false;
-      break;
-    case 'ST':  // Show Turtle
-      Turtle.visible = true;
-      break;
-	  // Added by Zuhair
-	case 'DL': // Draw Loop
-		if (Turtle.penDownValue) {
-        Turtle.ctxScratch.beginPath();
-		var radius = values[0];
-		var cenx = Turtle.x +radius * Math.cos(2 * Math.PI * Turtle.heading / 360);
-		var ceny = Turtle.y +radius * Math.sin(2 * Math.PI * Turtle.heading / 360);
-        Turtle.ctxScratch.arc(cenx, ceny,Math.abs(radius),0,2*Math.PI);
-        Turtle.ctxScratch.stroke();
-      }
-	  break;
-	 case 'AL': // Draw arc left
-	    var radius = values[0];
-		var angle = values[1];
-		if (Turtle.penDownValue) {
-        Turtle.ctxScratch.beginPath();
-		var cenx = Turtle.x + radius * Math.cos(2 * Math.PI * Turtle.heading / 360);
-		var ceny = Turtle.y + radius * Math.sin(2 * Math.PI * Turtle.heading / 360);
-		var start_angle;
-		var end_angle;
-		if (radius>=0){
-			start_angle = 2 * Math.PI * ((Turtle.heading+180)%360) / 360;
-			end_angle = 2 * Math.PI * ((Turtle.heading+angle+180)%360)/ 360;
-		}
-		else{
-			start_angle = 2 * Math.PI * ((Turtle.heading+angle)%360) / 360;
-			end_angle = 2 * Math.PI * ((Turtle.heading)%360)/ 360;
-		}
-        Turtle.ctxScratch.arc(cenx, ceny,Math.abs(radius),start_angle,end_angle);
-        Turtle.ctxScratch.stroke();
-      }
-	   Turtle.heading +=angle;
-	  Turtle.x = cenx - radius * Math.cos(2 * Math.PI * Turtle.heading / 360);
-	  Turtle.y = ceny - radius * Math.sin(2 * Math.PI * Turtle.heading / 360);
-      break;
-	  
-  }
+    switch (command) {
+        case 'FD':  // Forward
+            if (Turtle.penDownValue) {
+                Turtle.ctxScratch.beginPath();
+                Turtle.ctxScratch.moveTo(Turtle.x, Turtle.y);
+            }
+            var distance = values[0];
+            if (distance) {
+                Turtle.x += distance * Math.sin(2 * Math.PI * Turtle.heading / 360);
+                Turtle.y -= distance * Math.cos(2 * Math.PI * Turtle.heading / 360);
+                var bump = 0;
+            } else {
+                // WebKit (unlike Gecko) draws nothing for a zero-length line.
+                var bump = 0.1;
+            }
+            if (Turtle.penDownValue) {
+                Turtle.ctxScratch.lineTo(Turtle.x, Turtle.y + bump);
+                Turtle.ctxScratch.stroke();
+            }
+            break;
+        case 'RT':  // Right Turn
+            Turtle.heading += values[0];
+            Turtle.heading %= 360;
+            if (Turtle.heading < 0) {
+                Turtle.heading += 360;
+            }
+            break;
+        case 'DP':  // Draw Print
+            Turtle.ctxScratch.save();
+            Turtle.ctxScratch.translate(Turtle.x, Turtle.y);
+            Turtle.ctxScratch.rotate(2 * Math.PI * (Turtle.heading - 90) / 360);
+            Turtle.ctxScratch.fillText(values[0], 0, 0);
+            Turtle.ctxScratch.restore();
+            break;
+        case 'DF':  // Draw Font
+            Turtle.ctxScratch.font = values[2] + ' ' + values[1] + 'pt ' + values[0];
+            break;
+        case 'PU':  // Pen Up
+            Turtle.penDownValue = false;
+            break;
+        case 'PD':  // Pen Down
+            Turtle.penDownValue = true;
+            break;
+        case 'PW':  // Pen Width
+            Turtle.ctxScratch.lineWidth = values[0];
+            break;
+        case 'PC':  // Pen Colour
+            Turtle.ctxScratch.strokeStyle = values[0];
+            Turtle.ctxScratch.fillStyle = values[0];
+            break;
+        case 'HT':  // Hide Turtle
+            Turtle.visible = false;
+            break;
+        case 'ST':  // Show Turtle
+            Turtle.visible = true;
+            break;
+            // Added by Zuhair
+        case 'DL': // Draw Loop
+            if (Turtle.penDownValue) {
+                Turtle.ctxScratch.beginPath();
+                var radius = values[0];
+                var cenx = Turtle.x + radius * Math.cos(2 * Math.PI * Turtle.heading / 360);
+                var ceny = Turtle.y + radius * Math.sin(2 * Math.PI * Turtle.heading / 360);
+                Turtle.ctxScratch.arc(cenx, ceny, Math.abs(radius), 0, 2 * Math.PI);
+                Turtle.ctxScratch.stroke();
+            }
+            break;
+        case 'AL': // Draw arc left
+            var radius = values[0];
+            var angle = values[1];
+            if (Turtle.penDownValue) {
+                Turtle.ctxScratch.beginPath();
+                var cenx = Turtle.x + radius * Math.cos(2 * Math.PI * Turtle.heading / 360);
+                var ceny = Turtle.y + radius * Math.sin(2 * Math.PI * Turtle.heading / 360);
+                var start_angle;
+                var end_angle;
+                if (radius >= 0) {
+                    start_angle = 2 * Math.PI * ((Turtle.heading + 180) % 360) / 360;
+                    end_angle = 2 * Math.PI * ((Turtle.heading + angle + 180) % 360) / 360;
+                }
+                else {
+                    start_angle = 2 * Math.PI * ((Turtle.heading + angle) % 360) / 360;
+                    end_angle = 2 * Math.PI * ((Turtle.heading) % 360) / 360;
+                }
+                Turtle.ctxScratch.arc(cenx, ceny, Math.abs(radius), start_angle, end_angle);
+                Turtle.ctxScratch.stroke();
+            }
+            Turtle.heading += angle;
+            Turtle.x = cenx - radius * Math.cos(2 * Math.PI * Turtle.heading / 360);
+            Turtle.y = ceny - radius * Math.sin(2 * Math.PI * Turtle.heading / 360);
+            break;
+
+    }
 };
 
 /**
@@ -573,9 +576,9 @@ Turtle.drawCircleLeft = function(radius, id) {
 
 Turtle.arcLeft = function(radius, angle, id) {
   BlocklyApps.log.push(['AL', -radius, -angle,id]);
-}
+};
 
 Turtle.arcRight = function(radius, angle, id) {
   BlocklyApps.log.push(['AL', radius, angle,id]);
-}
+};
 
