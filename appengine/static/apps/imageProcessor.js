@@ -12,12 +12,10 @@ var ImageProcess = {};
 /**
  * gets the image data from an external image
  */
-ImageProcess.getImageData = function(imageSrc) {
+ImageProcess.getImageData = function(image) {
     var ctx = document.createElement("canvas").getContext("2d");
-    var img = document.createElement("img");
-    img.src = imageSrc;
-    ctx.drawImage(img, 0, 0);
-    return ctx.getImageData(0, 0, img.naturalWidth, img.naturalHeight);
+    ctx.drawImage(image, 0, 0);
+    return ctx.getImageData(0, 0, image.width, image.height);
 };
 
 /**
@@ -98,7 +96,7 @@ ImageProcess.compareDataTrimmed = function(imageData1, imageData2){
 
 ImageProcess.trim = function(pixels) {
     var ctx = document.createElement('canvas').getContext('2d');
-    ctx.putImageData(data);
+    ctx.putImageData(pixels, 0, 0);
     var i, x, y;
     var bound = {
         top: null,
@@ -136,9 +134,9 @@ ImageProcess.trim = function(pixels) {
         }
     }
 
-    var trimHeight = bound.bottom - bound.top,
-            trimWidth = bound.right - bound.left,
-            trimmed = ctx.getImageData(bound.left, bound.top, trimWidth, trimHeight);
+    var trimHeight = bound.bottom - bound.top;
+    var trimWidth = bound.right - bound.left;
+    var trimmed = ctx.getImageData(bound.left-1, bound.top-1, trimWidth+2, trimHeight+2);
     // open new window with trimmed image:
     return trimmed;
 };

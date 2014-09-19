@@ -166,19 +166,22 @@
   {call apps.storageDialog /}
   {if $ij.level != 'default'}
     <div id="dialogQuestion" class="dialogHiddenContent">
-    <table><tr>
-		<td><img id="question_image"></img></td>
-		<td>&nbsp;</td>		
-		<td><div id="question_text"></div></td>
-	</tr></table>
+    <table>
+        <tr><div id="question_text"></div></tr>
+        <tr>&nbsp;</tr>	
+	<tr><div width="400" height="400" style="position: relative;">
+            <img id="question_image" "></img>
+            <canvas id="measure" width="400" height="400" 
+            style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+            </div></tr>
+    </table>
     {call apps.ok /}
   </div>
    <div id="dialogSubmit" class="dialogHiddenContent">
-    <table><tr>
-		<td><img id="diff_image"></img></td>
-		<td>&nbsp;</td>		
-		<td><div id = "submit_response"></div></td>
-	</tr></table>
+    <table>
+        <tr><div id = "submit_response"></div></tr>
+        <tr><img id="diff_image"></img></tr>
+    </table>
     {call apps.ok /}
   </div>
   {/if}

@@ -42,6 +42,9 @@ Turtle.LEVEL = BlocklyApps.getStringParamFromUrl("level", "default");
 Turtle.QUESTION = BlocklyApps.getStringParamFromUrl("question", "default");
 var testing = BlocklyApps.getStringParamFromUrl("test", "false");
 
+// main website
+Turtle.WEBSITE = "http://localhost/thinklikeprogrammer/";
+
 /**
 * Get the selected level from a json file, added by Zuhair
 */
@@ -56,15 +59,17 @@ else {
     var levelquestion = {
         "toolbox_type": null,
         "max_blocks": null,
-        "question_image": null,
-        "question_text": null,
+        "question_image": "example.png",
+        "question_text": "Sample question",
+        "score": 10,
         "loaded_blocks": null
     };
 }
 Turtle.TOOLBOX_TYPE = levelquestion.toolbox_type ? levelquestion.toolbox_type : "full";
 Turtle.MAX_BLOCKS = levelquestion.max_blocks ? levelquestion.max_blocks : Infinity;
-Turtle.QUESTION_IMAGE_SRC = "questions/" + levelquestion.question_image;
+Turtle.QUESTION_IMAGE_SRC = levelquestion.question_image ? "questions/" + levelquestion.question_image : null;
 Turtle.QUESTION_TEXT = levelquestion.question_text;
+Turtle.SCORE = levelquestion.score ? levelquestion : 0;
 Turtle.LOADED_BLOCKS = levelquestion.loaded_blocks;
 
 document.write('<script type="text/javascript" src="generated/' +
@@ -161,6 +166,7 @@ Turtle.init = function() {
         document.getElementById("question_image").src = Turtle.QUESTION_IMAGE_SRC ? Turtle.QUESTION_IMAGE_SRC : "error.png";
         document.getElementById("question_text").innerHTML = Turtle.QUESTION_TEXT ? Turtle.QUESTION_TEXT : "No such question";
         BlocklyApps.bindClick('submitButton', Turtle.submitClick);
+        if (!Turtle.QUESTION_IMAGE_SRC) document.getElementById("submitButton").style.display = "none";
         BlocklyApps.bindClick('showQuestionButton', Turtle.showQuestionClick);
         // Show question on startup
         var content = document.getElementById('dialogQuestion');
@@ -284,14 +290,7 @@ Turtle.submitClick = function(e) {
     var diffImage = document.getElementById('diff_image');
     var submitResponse = document.getElementById('submit_response');
     if (Turtle.executed === true) { // submit only when the code is executed
-        var attemptImageData = Turtle.ctxScratch.getImageData(0, 0, Turtle.WIDTH, Turtle.HEIGHT); // Image data for the user's attempt
-        var answerImageData = ImageProcess.getImageData(Turtle.QUESTION_IMAGE_SRC);
-        var response = ImageProcess.compareData(attemptImageData, answerImageData);
-        var movementResponse = ImageProcess.compareDataTrimmed(attemptImageData, answerImageData); // tests movement
-        
-        diffImage.src = response.diffImageSrc; 
-        
-        submitResponse.innerHTML = ""; // TODO show the response here (accepts html put in a string)
+        Turtle.submit();  
     }
     else {
         diffImage.src = "error.png";
@@ -307,6 +306,49 @@ Turtle.submitClick = function(e) {
     BlocklyApps.showDialog(content, origin, true, true, style,
             BlocklyApps.stopDialogKeyDown);
     BlocklyApps.startDialogKeyDown();
+};
+
+/**
+ * Compares the attempt Image and the question Image, computes score, and submits the score to the database
+ * @returns {Turtle.submit.ret} an object containing submit response text and the difference image.
+ */
+Turtle.submit = function() {
+    var attemptImageData = Turtle.ctxScratch.getImageData(0, 0, Turtle.WIDTH, Turtle.HEIGHT); // Image data for the user's attempt
+    var answerImageData = ImageProcess.getImageData(document.getElementById("question_image"));
+    var response = ImageProcess.compareData(attemptImageData, answerImageData);
+    var movementResponse = ImageProcess.compareDataTrimmed(attemptImageData, answerImageData); // tests movement by trimming empty pixels
+    
+    var score = Turtle.calculateScore(response, movementResponse);
+    
+    // submit score to database
+    var req = new XMLHttpRequest();
+    req.open("POST", Turtle.WEBSITE + "submitscore.php", true );
+    req.onreadystatechange = function (){
+        if (req.readyState == 4 && req.status == 200)
+        {
+            document.getElementById('submit_response').innerHTML = req.responseText;
+            document.getElementById('diff_image').src = response.diffImageSrc;
+        }
+    };
+    
+    req.send("score="+score+"&question="+Turtle.QUESTION+"&level="+Turtle.LEVEL);
+};
+
+/**
+ * calculates the score of the question from the received responses
+ * @param {type} response
+ * @param {type} movementResponse
+ * @returns {int} score of the question
+ */
+Turtle.calculateScore = function(response, movementResponse){
+    var colorRatio = 0.4;
+    var movementRatio = 0.4;
+    return ~~(Turtle.SCORE * (
+            response.percentSimilar() * (1 - colorRatio) * (1 - movementRatio) +
+            response.percentSimilar(true) * colorRatio * (1 - movementRatio) +
+            movementResponse.percentSimilar() * (1 - colorRatio) * movementRatio +
+            movementResponse.percentSimilar(true) * colorRatio * movementRatio
+            ));
 };
 
 /**
