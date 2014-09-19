@@ -178,6 +178,7 @@ Turtle.init = function() {
         BlocklyApps.showDialog(content, null, false, true, style,
                 BlocklyApps.stopDialogKeyDown);
         BlocklyApps.startDialogKeyDown();
+        createMeasurement(document.getElementById("measure"));
     }
 
   // Lazy-load the syntax-highlighting.
@@ -313,7 +314,7 @@ Turtle.submitClick = function(e) {
  * @returns {Turtle.submit.ret} an object containing submit response text and the difference image.
  */
 Turtle.submit = function() {
-    var attemptImageData = Turtle.ctxScratch.getImageData(0, 0, Turtle.WIDTH, Turtle.HEIGHT); // Image data for the user's attempt
+    var attemptImageData = Turtle.ctxDisplay.getImageData(0, 0, Turtle.WIDTH, Turtle.HEIGHT); // Image data for the user's attempt
     var answerImageData = ImageProcess.getImageData(document.getElementById("question_image"));
     var response = ImageProcess.compareData(attemptImageData, answerImageData);
     var movementResponse = ImageProcess.compareDataTrimmed(attemptImageData, answerImageData); // tests movement by trimming empty pixels
@@ -327,11 +328,12 @@ Turtle.submit = function() {
         if (req.readyState == 4 && req.status == 200)
         {
             document.getElementById('submit_response').innerHTML = req.responseText;
-            document.getElementById('diff_image').src = response.diffImageSrc;
+            
         }
     };
-    
     req.send("score="+score+"&question="+Turtle.QUESTION+"&level="+Turtle.LEVEL);
+    
+    document.getElementById('diff_image').src = response.diffImageSrc;
 };
 
 /**
