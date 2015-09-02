@@ -40,6 +40,7 @@ BlocklyApps.LANG = BlocklyApps.getLang();
 */
 Turtle.LEVEL = BlocklyApps.getStringParamFromUrl("level", "default");
 Turtle.QUESTION = BlocklyApps.getStringParamFromUrl("question", "default");
+Turtle.USER = BlocklyApps.getStringParamFromUrl("u", "default");
 var testing = BlocklyApps.getStringParamFromUrl("test", "false");
 
 // main website
@@ -53,7 +54,7 @@ if (testing === "false") {
     var request = new XMLHttpRequest();
     request.open("GET", "questions.json", false);
     request.send(null);
-    var levelquestion = JSON.parse(request.responseText)[Turtle.LEVEL][Turtle.QUESTION];
+    var levelquestion = JSON.parse(request.responseText)[Turtle.QUESTION];
 }
 else {
     var levelquestion = {
@@ -69,7 +70,7 @@ Turtle.TOOLBOX_TYPE = levelquestion.toolbox_type ? levelquestion.toolbox_type : 
 Turtle.MAX_BLOCKS = levelquestion.max_blocks ? levelquestion.max_blocks : Infinity;
 Turtle.QUESTION_IMAGE_SRC = levelquestion.question_image ? "questions/" + levelquestion.question_image : null;
 Turtle.QUESTION_TEXT = levelquestion.question_text;
-Turtle.SCORE = levelquestion.score ? levelquestion : 0;
+Turtle.SCORE = levelquestion.score ? levelquestion.score : 0;
 Turtle.LOADED_BLOCKS = levelquestion.loaded_blocks;
 
 document.write('<script type="text/javascript" src="generated/' +
@@ -314,7 +315,7 @@ Turtle.submitClick = function(e) {
  * @returns {Turtle.submit.ret} an object containing submit response text and the difference image.
  */
 Turtle.submit = function() {
-    var attemptImageData = Turtle.ctxDisplay.getImageData(0, 0, Turtle.WIDTH, Turtle.HEIGHT); // Image data for the user's attempt
+    var attemptImageData = Turtle.ctxScratch.getImageData(0, 0, Turtle.WIDTH, Turtle.HEIGHT); // Image data for the user's attempt
     var answerImageData = ImageProcess.getImageData(document.getElementById("question_image"));
     var response = ImageProcess.compareData(attemptImageData, answerImageData);
     var movementResponse = ImageProcess.compareDataTrimmed(attemptImageData, answerImageData); // tests movement by trimming empty pixels
@@ -323,7 +324,8 @@ Turtle.submit = function() {
     
     // submit score to database
     var req = new XMLHttpRequest();
-    req.open("POST", Turtle.WEBSITE + "submitscore.php", true );
+    req.open("GET", Turtle.WEBSITE + "submitscore.php?"+"score="+score+"&question="+Turtle.QUESTION+"&level="+Turtle.LEVEL+"&u="+Turtle.USER, true );
+    req.setRequestHeader('Access-Control-Allow-Origin','https://thinklikeaprogrammer.appspot.com');
     req.onreadystatechange = function (){
         if (req.readyState == 4 && req.status == 200)
         {
@@ -331,8 +333,8 @@ Turtle.submit = function() {
             
         }
     };
-    req.send("score="+score+"&question="+Turtle.QUESTION+"&level="+Turtle.LEVEL);
     
+    req.send();
     document.getElementById('diff_image').src = response.diffImageSrc;
 };
 
